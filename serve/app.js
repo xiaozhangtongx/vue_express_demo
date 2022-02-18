@@ -10,10 +10,27 @@ const cors = require('cors')
 app.use(cors())
 
 // 配置解析表单的中间件
-app.use(express.urlencoded({ extended: false }))
+const bodyParser = require('body-parser')
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+// parse application/json
+app.use(bodyParser.json())
 
 // 导入配置文件
 const config = require('./config')
+
+// 导入session模块
+const session = require('express-session')
+app.use(
+  session({
+    secret: 'xiaozhantx123134',
+    name: 'captcha',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { maxAge: 50000 },
+    rolling: true,
+  })
+)
 
 // 解析 token 的中间件
 const expressJWT = require('express-jwt')
@@ -45,7 +62,7 @@ app.use(function (err, req, res, next) {
   // 捕获身份认证失败的错误
   if (err.name === 'UnauthorizedError') {
     return res.send({
-      status: 500,
+      status: 401,
       message: '身份认证失败！',
     })
   }

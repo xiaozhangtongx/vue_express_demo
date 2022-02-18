@@ -13,6 +13,9 @@ const bcrypt = require('bcryptjs')
 // 用jsonwebtoken模块来生成 Token 字符串
 const jwt = require('jsonwebtoken')
 
+// 导入图形验证模块
+const svgCaptcha = require('svg-captcha')
+
 // 注册用户处理函数
 exports.register = (req, res) => {
   // 获取客户端提交到服务端的用户数据、
@@ -54,6 +57,7 @@ exports.register = (req, res) => {
 exports.login = (req, res) => {
   // 接受表单的数据
   const userinfo = req.body
+  console.log(userinfo)
   // 定义SQL语句
   const sql = `select * from user where phonenum=?`
   db.query(sql, userinfo.phonenum, function (err, results) {
@@ -84,4 +88,18 @@ exports.login = (req, res) => {
       token: 'Bearer ' + tokenStr,
     })
   })
+}
+
+// 图形验证码
+exports.codeimg = (req, res) => {
+  const cap = svgCaptcha.create({
+    size: 4,
+    ignoreChars: '0o1il',
+    noise: 1,
+    color: true,
+    background: '#E87661',
+  })
+  req.session.captcha = cap.text.toLocaleUpperCase() // session 存储
+  res.type('image/svg+xml')
+  res.send(cap.data)
 }
