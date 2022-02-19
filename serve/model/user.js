@@ -57,7 +57,7 @@ exports.register = (req, res) => {
 exports.login = (req, res) => {
   // 接受表单的数据
   const userinfo = req.body
-  console.log(userinfo)
+  if (userinfo.captcha.toLocaleUpperCase() !== req.session.captcha) return res.cc('验证码错误', 400)
   // 定义SQL语句
   const sql = `select * from user where phonenum=?`
   db.query(sql, userinfo.phonenum, function (err, results) {
@@ -85,7 +85,7 @@ exports.login = (req, res) => {
       status: 200,
       message: '登录成功！',
       // 为了方便客户端使用 Token，在服务器端直接拼接上 Bearer 的前缀
-      token: 'Bearer ' + tokenStr,
+      data: 'Bearer ' + tokenStr,
     })
   })
 }
@@ -95,9 +95,9 @@ exports.codeimg = (req, res) => {
   const cap = svgCaptcha.create({
     size: 4,
     ignoreChars: '0o1il',
-    noise: 1,
+    noise: 3,
     color: true,
-    background: '#E87661',
+    background: '#eee',
   })
   req.session.captcha = cap.text.toLocaleUpperCase() // session 存储
   res.type('image/svg+xml')

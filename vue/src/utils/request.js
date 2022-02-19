@@ -26,27 +26,29 @@ service.interceptors.request.use(
     return config
   },
   (err) => {
-    console.log(2)
     return Promise.reject(err)
   }
 )
 
 // 响应拦截
 service.interceptors.response.use((response) => {
-  const { status, data, msg } = response.data
-  console.log(status)
+  const { status, data, message } = response.data
   if (status === 200) {
+    Message.success(message)
     return data
+  } else if (status === 400) {
+    // 验证码输出错误
+    Message.error(message)
+    return Promise.reject(message)
   } else if (status === 401) {
-    // 和后台约定的，Token 过期，status是40001
     Message.error(TOKEN_ERROR)
     setTimeout(() => {
       router.push({ path: '/login' })
     }, 1000)
     return Promise.reject(TOKEN_ERROR)
   } else {
-    Message.error(msg || NETWORK_ERROR)
-    return Promise.reject(msg || NETWORK_ERROR)
+    Message.error(message || NETWORK_ERROR)
+    return Promise.reject(message || NETWORK_ERROR)
   }
 })
 

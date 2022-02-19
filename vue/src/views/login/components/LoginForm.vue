@@ -56,11 +56,10 @@
     methods: {
       // 用户登录
       submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
+        this.$refs[formName].validate(async (valid) => {
           if (valid) {
-            console.log(this.ruleForm)
-            const res = login('/api/login', this.ruleForm)
-            console.log(res)
+            let token = await login('/api/login', this.ruleForm)
+            console.log(token)
           }
         })
       },

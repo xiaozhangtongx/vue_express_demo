@@ -4,6 +4,24 @@ const express = require('express')
 const app = express()
 // 服务端口号
 const port = 9002
+// 导入配置文件
+const config = require('./config')
+
+//导入Cookie模块
+const cookieParser = require('cookie-parser')
+app.use(cookieParser())
+
+// 导入session模块
+const session = require('express-session')
+app.use(
+  session({
+    secret: config.sessionkey,
+    resave: false,
+    name: 'captcha',
+    saveUninitialized: true,
+    // cookie: { maxAge: config.cookie_in, secure: false },
+  })
+)
 
 // 导入并配置cors中间件
 const cors = require('cors')
@@ -15,22 +33,6 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
-
-// 导入配置文件
-const config = require('./config')
-
-// 导入session模块
-const session = require('express-session')
-app.use(
-  session({
-    secret: 'xiaozhantx123134',
-    name: 'captcha',
-    resave: false,
-    saveUninitialized: true,
-    cookie: { maxAge: 50000 },
-    rolling: true,
-  })
-)
 
 // 解析 token 的中间件
 const expressJWT = require('express-jwt')
