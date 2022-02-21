@@ -14,5 +14,8 @@ router.post('/login', userHandler.login)
 // 图形验证码
 router.get('/codeimg', userHandler.codeimg)
 
+// 退出登录
+router.get('/logout', userHandler.logout)
+
 // 将路由对象共享出去
 module.exports = router

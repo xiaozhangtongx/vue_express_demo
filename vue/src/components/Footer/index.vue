@@ -1,17 +1,12 @@
 <template>
   <div>
-    <!-- 头部组件 -->
-    <Header></Header>
+    <h2>Footer</h2>
   </div>
 </template>
 
 <script>
-  import Header from '@/components/Header'
   export default {
-    name: 'home',
-    components: {
-      Header,
-    },
+    name: '',
     data() {
       return {}
     },

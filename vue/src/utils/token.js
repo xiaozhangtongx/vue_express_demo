@@ -1,14 +1,14 @@
-export function setToken(tokenKey, token) {
-  // 将token存入localStorage
-  return localStorage.setItem(tokenKey, token)
+// 将token存入localStorage
+export const setToken = (value) => {
+  return localStorage.setItem('TOKEN', value)
 }
 
-export function getToken(tokenKey) {
-  //拿到localStorage中的token
-  return localStorage.getItem(tokenKey)
+//拿到localStorage中的token
+export const getToken = () => {
+  return localStorage.getItem('TOKEN')
 }
 
-export function removeToken(tokenKey) {
-  //退出登录时调用销毁token
-  return localStorage.removeItem(tokenKey)
+//退出登录时调用销毁token
+export const removeToken = () => {
+  return localStorage.removeItem(`TOKEN`)
 }

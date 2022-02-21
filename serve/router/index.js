@@ -7,5 +7,5 @@ const MyRouter = require('./my')
 // 导出路由
 module.exports = (app) => {
   app.use('/api', UserRouter)
-  app.use('/my', MyRouter)
+  app.use('/api/my', MyRouter)
 }

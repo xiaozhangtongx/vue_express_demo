@@ -5,7 +5,7 @@ const app = express()
 // 服务端口号
 const port = 9002
 // 导入配置文件
-const config = require('./config')
+const config = require('./utils/config')
 
 //导入Cookie模块
 const cookieParser = require('cookie-parser')
@@ -19,13 +19,17 @@ app.use(
     resave: false,
     name: 'captcha',
     saveUninitialized: true,
-    // cookie: { maxAge: config.cookie_in, secure: false },
+    cookie: { maxAge: config.cookie_in, secure: false },
   })
 )
-
-// 导入并配置cors中间件
-const cors = require('cors')
-app.use(cors())
+// 处理跨域
+app.all('*', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', config.allow_origin) //当允许携带cookies此处的白名单不能写’*’
+  res.header('Access-Control-Allow-Headers', 'content-type,Content-Length, Authorization,Origin,Accept,X-Requested-With') //允许的请求头
+  res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT') //允许的请求方法
+  res.header('Access-Control-Allow-Credentials', true) //允许携带cookies
+  next()
+})
 
 // 配置解析表单的中间件
 const bodyParser = require('body-parser')
@@ -36,9 +40,26 @@ app.use(bodyParser.json())
 
 // 解析 token 的中间件
 const expressJWT = require('express-jwt')
+const veryToken = require('./utils/token')
+app.use((req, res, next) => {
+  let token = req.headers['authorization']
+  if (token == undefined) {
+    return next()
+  } else {
+    veryToken
+      .verToken(token)
+      .then((data) => {
+        req.data = data
+        return next()
+      })
+      .catch((error) => {
+        return next()
+      })
+  }
+})
 
 // 使用 .unless({ path: [/^\/api\//] }) 指定哪些接口不需要进行 Token 的身份认证
-app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: [/^\/api\//] }))
+app.use(expressJWT({ secret: config.jwtSecretKey }).unless({ path: ['/api/login', '/api/register', '/api/codeimg'] }))
 
 // 响应数据的中间件
 app.use((req, res, next) => {
@@ -56,15 +77,21 @@ app.use((req, res, next) => {
 
 // 导入并使用路由模块
 const routes = require('./router/index')
-// app.use('/api', routes)
 routes(app)
 
 // 错误中间件
 app.use(function (err, req, res, next) {
+  //当token失效返回提示信息
+  if (err.status == 401) {
+    return res.send({
+      status: 401,
+      message: 'token失效',
+    })
+  }
   // 捕获身份认证失败的错误
   if (err.name === 'UnauthorizedError') {
     return res.send({
-      status: 401,
+      status: 403,
       message: '身份认证失败！',
     })
   }

@@ -2,7 +2,7 @@
 const db = require('../db/index')
 
 // 导入配置文件
-const config = require('../config')
+const config = require('../utils/config')
 
 // 导入nanoid模块生成唯一的uid
 const { nanoid } = require('nanoid')
@@ -10,8 +10,8 @@ const { nanoid } = require('nanoid')
 // 导入bcrypt模块
 const bcrypt = require('bcryptjs')
 
-// 用jsonwebtoken模块来生成 Token 字符串
-const jwt = require('jsonwebtoken')
+// 用token模块来生成 Token 字符串
+const settokne = require('../utils/token')
 
 // 导入图形验证模块
 const svgCaptcha = require('svg-captcha')
@@ -37,7 +37,6 @@ exports.register = (req, res) => {
     }
     // 对用户的密码,进行 bcrype 加密，返回值是加密之后的密码字符串
     userinfo.password = bcrypt.hashSync(userinfo.password, 10)
-    console.log(userinfo)
     // 定义插入用户的 SQL 语句
     const sql = 'insert into user set ?'
     db.query(sql, { uid: nanoid(9), username: userinfo.username, password: userinfo.password, phonenum: userinfo.phonenum }, (err, results) => {
@@ -60,7 +59,7 @@ exports.login = (req, res) => {
   if (userinfo.captcha.toLocaleUpperCase() !== req.session.captcha) return res.cc('验证码错误', 400)
   // 定义SQL语句
   const sql = `select * from user where phonenum=?`
-  db.query(sql, userinfo.phonenum, function (err, results) {
+  db.query(sql, userinfo.phonenum, (err, results) => {
     // 执行 SQL 语句失败
     if (err) return res.cc(err)
     // 执行 SQL 语句成功，但是查询到数据条数不等于 1
@@ -78,14 +77,14 @@ exports.login = (req, res) => {
     const user = { ...results[0], password: '', state: '', isAdmin: '' }
 
     // 生成 Token 字符串
-    const tokenStr = jwt.sign(user, config.jwtSecretKey, {
-      expiresIn: config.expiresIn, // token 有效期为 10 个小时
-    })
-    res.send({
-      status: 200,
-      message: '登录成功！',
-      // 为了方便客户端使用 Token，在服务器端直接拼接上 Bearer 的前缀
-      data: 'Bearer ' + tokenStr,
+    settokne.setToken(user).then((value) => {
+      res.send({
+        status: 200,
+        message: '登录成功！',
+        data: {
+          token: value,
+        },
+      })
     })
   })
 }
@@ -102,4 +101,14 @@ exports.codeimg = (req, res) => {
   req.session.captcha = cap.text.toLocaleUpperCase() // session 存储
   res.type('image/svg+xml')
   res.send(cap.data)
+}
+
+// 退出登录
+exports.logout = (req, res) => {
+  // 清除session
+  req.session.destroy()
+  res.send({
+    status: 200,
+    message: '退出登录成功',
+  })
 }

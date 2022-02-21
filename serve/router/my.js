@@ -4,7 +4,13 @@ const router = express.Router()
 
 // 测试
 router.get('/test', (req, res) => {
-  res.cc('test')
+  res.send({
+    status: 200,
+    message: 'test',
+    data: {
+      name: 'my',
+    },
+  })
 })
 
 // 将路由对象共享出去

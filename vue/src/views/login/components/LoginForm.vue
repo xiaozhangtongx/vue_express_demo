@@ -1,9 +1,9 @@
 <template>
   <div>
-    <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" class="demo-ruleForm">
+    <el-form :model="userInfo" status-icon :rules="rules" ref="userInfo" class="demo-userInfo">
       <!-- 账号 -->
       <el-form-item prop="phonenum">
-        <el-input placeholder="请输入您的账号" prefix-icon="el-icon-s-custom" v-model="ruleForm.phonenum" autocomplete="off" @keyup.enter.native="focusNext('password')"></el-input>
+        <el-input placeholder="请输入您的账号" prefix-icon="el-icon-s-custom" v-model="userInfo.phonenum" autocomplete="off" @keyup.enter.native="focusNext('password')"></el-input>
       </el-form-item>
       <!-- 密码 -->
       <el-form-item prop="password">
@@ -12,21 +12,21 @@
           prefix-icon="el-icon-lock"
           type="password"
           show-password
-          v-model="ruleForm.password"
+          v-model="userInfo.password"
           autocomplete="off"
           ref="password"
-          @keyup.enter.native="submitForm('ruleForm')"
+          @keyup.enter.native="submitForm('userInfo')"
         >
         </el-input>
       </el-form-item>
       <!-- 验证码 -->
       <el-form-item prop="captcha" class="captcha">
-        <el-input placeholder="请输入验证码" v-model="ruleForm.captcha" class="captcha-num"> </el-input>
+        <el-input placeholder="请输入验证码" v-model="userInfo.captcha" class="captcha-num"> </el-input>
         <img class="captcha-img" src="http://localhost:9002/api/codeimg" ref="img_codeRef" alt="看不清？点击刷新" @click="changeCodeimg" />
       </el-form-item>
       <!-- 按钮 -->
       <el-form-item>
-        <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
+        <el-button type="primary" @click="submitForm('userInfo')">登录</el-button>
         <el-button @click="register">注册</el-button>
       </el-form-item>
     </el-form>
@@ -34,12 +34,11 @@
 </template>
 
 <script>
-  import { login } from '@/api/user'
   export default {
     data() {
       return {
-        ruleForm: {
-          phonenum: '123457',
+        userInfo: {
+          phonenum: '12345678911',
           password: '123456',
           captcha: '',
         },
@@ -58,12 +57,18 @@
       submitForm(formName) {
         this.$refs[formName].validate(async (valid) => {
           if (valid) {
-            let token = await login('/api/login', this.ruleForm)
-            console.log(token)
+            try {
+              let res = await this.$store.dispatch('userLogin', this.userInfo)
+              if (res === 'success') {
+                this.$router.push('/home')
+              }
+            } catch (error) {
+              console.error(error)
+            }
           }
         })
       },
-      // 用户注册
+      // 跳转到用户注册界面
       register() {
         this.$router.push('/register')
       },
