@@ -78,7 +78,7 @@
       },
       // 切换验证码
       changeCodeimg() {
-        this.$refs.img_codeRef.src = `http://127.0.0.1/:9002/api/codeimg?${Math.random()}`
+        this.$refs.img_codeRef.src = `http://127.0.0.1:9002/api/codeimg?${Math.random()}`
       },
     },
   }
