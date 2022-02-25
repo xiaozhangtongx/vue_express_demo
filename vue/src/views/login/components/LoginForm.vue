@@ -22,7 +22,7 @@
       <!-- 验证码 -->
       <el-form-item prop="captcha" class="captcha">
         <el-input placeholder="请输入验证码" v-model="userInfo.captcha" class="captcha-num"> </el-input>
-        <img class="captcha-img" src="http://localhost:9002/api/codeimg" ref="img_codeRef" alt="看不清？点击刷新" @click="changeCodeimg" />
+        <img class="captcha-img" src="http://127.0.0.1:9002/api/codeimg" ref="img_codeRef" alt="看不清？点击刷新" @click="changeCodeimg" />
       </el-form-item>
       <!-- 按钮 -->
       <el-form-item>
@@ -78,7 +78,7 @@
       },
       // 切换验证码
       changeCodeimg() {
-        this.$refs.img_codeRef.src = `http://localhost:9002/api/codeimg?${Math.random()}`
+        this.$refs.img_codeRef.src = `http://127.0.0.1/:9002/api/codeimg?${Math.random()}`
       },
     },
   }

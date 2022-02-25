@@ -7,6 +7,15 @@ const port = 9002
 // 导入配置文件
 const config = require('./utils/config')
 
+// 处理跨域
+app.all('*', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', config.allow_origin) //当允许携带cookies此处的白名单不能写’*’
+  res.header('Access-Control-Allow-Headers', 'content-type,Content-Length, Authorization,Origin,Accept,X-Requested-With') //允许的请求头
+  res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT') //允许的请求方法
+  res.header('Access-Control-Allow-Credentials', true) //允许携带cookies
+  next()
+})
+
 //导入Cookie模块
 const cookieParser = require('cookie-parser')
 app.use(cookieParser())
@@ -22,14 +31,6 @@ app.use(
     cookie: { maxAge: config.cookie_in, secure: false },
   })
 )
-// 处理跨域
-app.all('*', function (req, res, next) {
-  res.header('Access-Control-Allow-Origin', config.allow_origin) //当允许携带cookies此处的白名单不能写’*’
-  res.header('Access-Control-Allow-Headers', 'content-type,Content-Length, Authorization,Origin,Accept,X-Requested-With') //允许的请求头
-  res.header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS, PUT') //允许的请求方法
-  res.header('Access-Control-Allow-Credentials', true) //允许携带cookies
-  next()
-})
 
 // 配置解析表单的中间件
 const bodyParser = require('body-parser')
